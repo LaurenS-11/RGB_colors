@@ -21,22 +21,25 @@ The RGB Color Explorer transforms the abstract concept of RGB color mixing into 
 #### 🔴 Red Channel Slider (0-255)
 - **Purpose**: Controls the intensity of red light in the final color
 - **Range**: 0 (no red) to 255 (maximum red intensity)
-- **Visual Feedback**: Real-time numerical display showing current value
+- **Visual Feedback**: Real-time hexadecimal display (0x00-0xFF) showing current value
 - **Behavior**: Smooth sliding action with immediate color preview updates
+- **Direct Input**: Text entry box for precise decimal (0-255) or hex (00-FF, 0x00-0xFF) values
 - **Technical Note**: Represents the red component in 8-bit color depth
 
 #### 🟢 Green Channel Slider (0-255)
 - **Purpose**: Controls the intensity of green light in the final color
 - **Range**: 0 (no green) to 255 (maximum green intensity)
-- **Visual Feedback**: Real-time numerical display showing current value
+- **Visual Feedback**: Real-time hexadecimal display (0x00-0xFF) showing current value
 - **Behavior**: Smooth sliding action with immediate color preview updates
+- **Direct Input**: Text entry box for precise decimal (0-255) or hex (00-FF, 0x00-0xFF) values
 - **Technical Note**: Represents the green component in 8-bit color depth
 
 #### 🔵 Blue Channel Slider (0-255)
 - **Purpose**: Controls the intensity of blue light in the final color
 - **Range**: 0 (no blue) to 255 (maximum blue intensity)
-- **Visual Feedback**: Real-time numerical display showing current value
+- **Visual Feedback**: Real-time hexadecimal display (0x00-0xFF) showing current value
 - **Behavior**: Smooth sliding action with immediate color preview updates
+- **Direct Input**: Text entry box for precise decimal (0-255) or hex (00-FF, 0x00-0xFF) values
 - **Technical Note**: Represents the blue component in 8-bit color depth
 
 ### 🖼️ Color Display System
@@ -85,6 +88,51 @@ The RGB Color Explorer transforms the abstract concept of RGB color mixing into 
 - **Cross-platform**: Works on Windows, macOS, and Linux
 - **Error Handling**: Graceful fallback if clipboard access fails
 
+### 📝 Direct Value Entry System
+
+#### Precision Text Input Boxes
+- **Location**: Adjacent to each RGB slider for immediate access
+- **Purpose**: Allow precise color value entry when sliders aren't accurate enough
+- **Format**: Display decimal values (0-255) for exact numerical input
+- **Synchronization**: Automatically sync with sliders - changes in either update both
+- **Real-time Validation**: Invalid entries show visual feedback with light red background
+
+#### Dual Value Display System
+- **Hexadecimal Labels**: Show current values in prefixed hex format (0x00-0xFF) next to sliders
+- **Decimal Text Boxes**: Allow direct decimal input (0-255) for precise control
+- **Clear Format Indication**: 0x prefix makes hexadecimal values immediately recognizable
+- **Complementary Information**: Provides both hex (for web/design) and decimal (for programming) formats
+- **No Redundancy**: Each display serves a specific purpose and use case
+
+#### Supported Input Formats
+
+**Decimal Format (0-255):**
+- `0` to `255` - Standard decimal values
+- Examples: `128`, `255`, `0`, `64`
+- Use case: Direct RGB value specification
+
+**Hexadecimal Formats:**
+- `00` to `FF` - Two-digit hex (case insensitive)
+- `0x00` to `0xFF` - Prefixed hex format
+- Examples: `FF`, `80`, `0x7F`, `A0`
+- Use case: Converting from web color codes or design software
+
+#### Input Validation and Error Handling
+- **Range Checking**: Values outside 0-255 range are rejected
+- **Format Validation**: Non-numeric/non-hex inputs show error feedback
+- **Visual Feedback**: Invalid entries briefly highlight with red background
+- **Auto-correction**: Focus out or Enter key triggers validation and update
+- **Error Recovery**: Invalid entries don't crash the application
+
+#### Usage Examples
+```
+Decimal Entry:    Type "200" in text box → Sets channel to 200, hex label shows "0xC8"
+Hex Entry:        Type "C8" in text box → Sets channel to 200, hex label shows "0xC8"
+Prefixed Hex:     Type "0xC8" in text box → Sets channel to 200, hex label shows "0xC8"
+Web Color Copy:   Copy "FF" from #FF8000 → Type "FF" to set red to 255
+Visual Reference: See both decimal (255) and hex (0xFF) representations simultaneously
+```
+
 ### 🎨 User Interface Design
 
 #### Modern Aesthetic
@@ -97,11 +145,13 @@ The RGB Color Explorer transforms the abstract concept of RGB color mixing into 
 - **Accessibility**: High contrast between text and backgrounds
 
 #### Responsive Design
-- **Window Sizing**: Starts at 600x500 pixels, fully resizable
+- **Window Sizing**: Starts at 800x650 pixels (optimally sized for all components), fully resizable
+- **Minimum Size**: 700x600 pixels to maintain usability
+- **Window Positioning**: Automatically centered on screen for optimal viewing
 - **Grid Layout**: Uses tkinter's grid system for consistent alignment
 - **Weight Distribution**: Properly configured column and row weights
 - **Adaptive Elements**: Sliders expand/contract with window size
-- **Minimum Usability**: Functional at various window sizes
+- **Maximized Option**: Can be configured to start maximized for best experience
 
 ## 🔧 Technical Requirements
 
@@ -112,7 +162,7 @@ The RGB Color Explorer transforms the abstract concept of RGB color mixing into 
   - Linux distributions (Ubuntu, Fedora, CentOS, etc.)
 - **Python Version**: 3.6 or higher (recommended: 3.8+)
 - **Memory**: Minimal requirements (< 50MB RAM)
-- **Display**: Any resolution supporting 600x500 minimum window size
+- **Display**: Any resolution supporting 700x600 minimum window size (optimal: 800x650)
 
 ### Dependencies
 - **tkinter**: Python's standard GUI toolkit (included with most Python installations)
@@ -174,32 +224,59 @@ chmod +x rgb_color_explorer.py
 - Use the configured task: "Run RGB Color Explorer"
 - Or use the integrated terminal within VS Code
 
+#### Window Size Customization
+The application starts with an optimal window size (800x650 pixels) that fits all components perfectly without requiring resizing. The window is automatically centered on your screen.
+
+**To start maximized instead:**
+1. Open `rgb_color_explorer.py` in your editor
+2. Find the line: `# self.root.state('zoomed')  # Linux/Windows maximized`
+3. Uncomment it by removing the `# ` at the beginning
+4. Save and run the application
+
+**Current default behavior:**
+- Window size: 800x650 pixels (optimal for all components)
+- Minimum size: 700x600 pixels (maintains usability when resized)
+- Position: Automatically centered on screen
+- Resizable: Yes, in both width and height
+
 ### Step-by-Step User Guide
 
 #### 1. Initial Launch
 - Application opens with default gray color (128, 128, 128)
 - All three sliders positioned at middle position
+- Hex labels show "0x80" for each channel (hex equivalent of 128)
+- Text entry boxes show "128" for each channel (decimal format)
 - Color display shows medium gray
-- Color values displayed below the preview square
+- Color values displayed below the preview square (RGB and HEX formats)
 
-#### 2. Basic Color Adjustment
+#### 2. Basic Color Adjustment via Sliders
 - **Single Color**: Move one slider to see pure red, green, or blue
 - **Color Mixing**: Adjust multiple sliders simultaneously
 - **Fine Tuning**: Make small adjustments for precise color matching
 - **Extreme Values**: Test 0 (no color) and 255 (maximum intensity)
 
-#### 3. Advanced Techniques
+#### 3. Precise Value Entry via Text Boxes
+- **Direct Decimal Entry**: Type exact values (0-255) in text boxes
+  - Example: Type "200" in red box to set red channel to 200
+- **Hexadecimal Entry**: Use hex values for web color compatibility
+  - Example: Type "C8" to set channel to 200 (decimal equivalent)
+  - Example: Type "0xFF" to set channel to 255 (maximum)
+- **Validation**: Invalid entries show red background briefly
+- **Activation**: Press Enter or click elsewhere to apply the value
+
+#### 4. Advanced Techniques
 - **Complementary Colors**: 
   - Start with one color (e.g., Red: 255, Green: 0, Blue: 0)
   - Adjust other channels to create variations
 - **Gradient Creation**: Note values for creating smooth color transitions
-- **Color Matching**: Use to match existing colors from other sources
+- **Color Matching**: Use text entry to match exact values from design tools
+- **Web Color Conversion**: Copy hex digits from web colors (e.g., #FF8000 → Red: FF, Green: 80, Blue: 00)
 
-#### 4. Professional Workflows
-- **Web Development**: Copy RGB values directly for CSS
-- **Design Software**: Use RGB values in Photoshop, GIMP, etc.
-- **Color Documentation**: Record favorite combinations for later use
-- **Team Collaboration**: Share exact color specifications
+#### 5. Professional Workflows
+- **Web Development**: Copy RGB values directly for CSS, or use hex entry for web colors
+- **Design Software**: Use precise decimal values in Photoshop, GIMP, etc.
+- **Color Documentation**: Record exact values for brand colors and style guides
+- **Team Collaboration**: Share precise color specifications using either format
 
 ## 🎓 Understanding RGB Color Theory
 
@@ -327,6 +404,10 @@ class RGBColorExplorer:
     def copy_rgb(self):
         """Copy the current RGB values to clipboard."""
         # Clipboard integration with user feedback
+        
+    def center_window(self):
+        """Center the window on the screen."""
+        # Automatically positions window in center of screen for optimal viewing
 ```
 
 ### Technical Implementation Details

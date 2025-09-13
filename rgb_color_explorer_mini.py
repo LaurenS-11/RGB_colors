@@ -15,7 +15,7 @@ import sys
 class RGBColorExplorerMini:
     """Main application class for the RGB Color Explorer Mini."""
     
-    # Common color names and their RGB values (reduced set for compact display)
+    # Common color names and their RGB values (full set restored)
     COMMON_COLORS = {
         "Custom Color": None,  # Default selection - no auto-change
         "Black": (0, 0, 0),
@@ -26,9 +26,35 @@ class RGBColorExplorerMini:
         "Yellow": (255, 255, 0),
         "Cyan": (0, 255, 255),
         "Magenta": (255, 0, 255),
+        "Silver": (192, 192, 192),
+        "Gray": (128, 128, 128),
+        "Maroon": (128, 0, 0),
+        "Olive": (128, 128, 0),
+        "Lime": (0, 255, 0),
+        "Aqua": (0, 255, 255),
+        "Teal": (0, 128, 128),
+        "Navy": (0, 0, 128),
+        "Fuchsia": (255, 0, 255),
+        "Purple": (128, 0, 128),
         "Orange": (255, 165, 0),
         "Pink": (255, 192, 203),
-        "Purple": (128, 0, 128),
+        "Brown": (165, 42, 42),
+        "Coral": (255, 127, 80),
+        "Crimson": (220, 20, 60),
+        "Gold": (255, 215, 0),
+        "Indigo": (75, 0, 130),
+        "Ivory": (255, 255, 240),
+        "Khaki": (240, 230, 140),
+        "Lavender": (230, 230, 250),
+        "Lemon": (255, 250, 205),
+        "Mint": (245, 255, 250),
+        "Peach": (255, 218, 185),
+        "Plum": (221, 160, 221),
+        "Salmon": (250, 128, 114),
+        "Tan": (210, 180, 140),
+        "Turquoise": (64, 224, 208),
+        "Violet": (238, 130, 238),
+        "Wheat": (245, 222, 179),
     }
     
     def __init__(self, root):
@@ -112,10 +138,16 @@ class RGBColorExplorerMini:
         
         self.color_combobox = ttk.Combobox(color_selection_frame, 
                                           values=self.get_dropdown_values(),
-                                          state="readonly", width=18, font=('Arial', 8))
+                                          state="readonly", width=28, font=('Arial', 8))
         self.color_combobox.grid(row=0, column=1)
         self.color_combobox.set("Custom Color")  # Default selection
         self.color_combobox.bind('<<ComboboxSelected>>', self.on_color_selected)
+        
+        # Add keyboard navigation for real-time color changes
+        self.color_combobox.bind('<KeyPress>', self.on_combobox_keypress)
+        self.color_combobox.bind('<Up>', self.on_combobox_navigate)
+        self.color_combobox.bind('<Down>', self.on_combobox_navigate)
+        self.color_combobox.bind('<Return>', self.on_color_selected)
         
         # Color display area (maximum width for better pixel viewing)
         self.color_frame = tk.Frame(main_frame, width=420, height=60, 
@@ -129,7 +161,7 @@ class RGBColorExplorerMini:
                                           font=('Courier', 8, 'bold'))
         self.color_value_label.grid(row=3, column=0, columnspan=2, pady=(0, 8))
         
-        # Red slider (compact)
+        # Red slider (compact with text entry)
         red_frame = ttk.LabelFrame(main_frame, text="Red", padding="4")
         red_frame.grid(row=4, column=0, columnspan=2, sticky='ew', pady=2)
         red_frame.columnconfigure(1, weight=1)
@@ -137,7 +169,7 @@ class RGBColorExplorerMini:
         ttk.Label(red_frame, text="0", font=('Arial', 8)).grid(row=0, column=0, padx=(0, 3))
         self.red_scale = ttk.Scale(red_frame, from_=0, to=255, 
                                   variable=self.red_var, orient='horizontal',
-                                  command=self.on_scale_change, length=200)
+                                  command=self.on_scale_change, length=150)
         self.red_scale.grid(row=0, column=1, sticky='ew', padx=3)
         ttk.Label(red_frame, text="255", font=('Arial', 8)).grid(row=0, column=2, padx=(3, 0))
         
@@ -145,7 +177,14 @@ class RGBColorExplorerMini:
                                         font=('Arial', 8, 'bold'))
         self.red_value_label.grid(row=0, column=3, padx=(5, 0))
         
-        # Green slider (compact)
+        # Red value entry box
+        self.red_entry = ttk.Entry(red_frame, width=6, font=('Courier', 8))
+        self.red_entry.grid(row=0, column=4, padx=(3, 0))
+        self.red_entry.insert(0, "128")
+        self.red_entry.bind('<Return>', lambda e: self.on_entry_change('red'))
+        self.red_entry.bind('<FocusOut>', lambda e: self.on_entry_change('red'))
+        
+        # Green slider (compact with text entry)
         green_frame = ttk.LabelFrame(main_frame, text="Green", padding="4")
         green_frame.grid(row=5, column=0, columnspan=2, sticky='ew', pady=2)
         green_frame.columnconfigure(1, weight=1)
@@ -153,7 +192,7 @@ class RGBColorExplorerMini:
         ttk.Label(green_frame, text="0", font=('Arial', 8)).grid(row=0, column=0, padx=(0, 3))
         self.green_scale = ttk.Scale(green_frame, from_=0, to=255, 
                                     variable=self.green_var, orient='horizontal',
-                                    command=self.on_scale_change, length=200)
+                                    command=self.on_scale_change, length=150)
         self.green_scale.grid(row=0, column=1, sticky='ew', padx=3)
         ttk.Label(green_frame, text="255", font=('Arial', 8)).grid(row=0, column=2, padx=(3, 0))
         
@@ -161,7 +200,14 @@ class RGBColorExplorerMini:
                                           font=('Arial', 8, 'bold'))
         self.green_value_label.grid(row=0, column=3, padx=(5, 0))
         
-        # Blue slider (compact)
+        # Green value entry box
+        self.green_entry = ttk.Entry(green_frame, width=6, font=('Courier', 8))
+        self.green_entry.grid(row=0, column=4, padx=(3, 0))
+        self.green_entry.insert(0, "128")
+        self.green_entry.bind('<Return>', lambda e: self.on_entry_change('green'))
+        self.green_entry.bind('<FocusOut>', lambda e: self.on_entry_change('green'))
+        
+        # Blue slider (compact with text entry)
         blue_frame = ttk.LabelFrame(main_frame, text="Blue", padding="4")
         blue_frame.grid(row=6, column=0, columnspan=2, sticky='ew', pady=2)
         blue_frame.columnconfigure(1, weight=1)
@@ -169,13 +215,20 @@ class RGBColorExplorerMini:
         ttk.Label(blue_frame, text="0", font=('Arial', 8)).grid(row=0, column=0, padx=(0, 3))
         self.blue_scale = ttk.Scale(blue_frame, from_=0, to=255, 
                                    variable=self.blue_var, orient='horizontal',
-                                   command=self.on_scale_change, length=200)
+                                   command=self.on_scale_change, length=150)
         self.blue_scale.grid(row=0, column=1, sticky='ew', padx=3)
         ttk.Label(blue_frame, text="255", font=('Arial', 8)).grid(row=0, column=2, padx=(3, 0))
         
         self.blue_value_label = ttk.Label(blue_frame, text="0x80", 
                                          font=('Arial', 8, 'bold'))
         self.blue_value_label.grid(row=0, column=3, padx=(5, 0))
+        
+        # Blue value entry box
+        self.blue_entry = ttk.Entry(blue_frame, width=6, font=('Courier', 8))
+        self.blue_entry.grid(row=0, column=4, padx=(3, 0))
+        self.blue_entry.insert(0, "128")
+        self.blue_entry.bind('<Return>', lambda e: self.on_entry_change('blue'))
+        self.blue_entry.bind('<FocusOut>', lambda e: self.on_entry_change('blue'))
         
         # Control buttons (compact)
         button_frame = ttk.Frame(main_frame)
@@ -216,7 +269,7 @@ class RGBColorExplorerMini:
         ttk.Label(speed_frame, text="Speed:", font=('Arial', 8)).grid(row=0, column=0, padx=(0, 3))
         self.speed_scale = ttk.Scale(speed_frame, from_=1, to=10, orient='horizontal', 
                                     length=100, command=self.on_speed_change)
-        self.speed_scale.set(3)  # Default speed
+        self.speed_scale.set(1)  # Default to slowest speed
         self.speed_scale.grid(row=0, column=1, padx=3)
         ttk.Label(speed_frame, text="Slow", font=('Arial', 7)).grid(row=0, column=2, padx=(3, 0))
         ttk.Label(speed_frame, text="Fast", font=('Arial', 7)).grid(row=0, column=3, padx=(8, 0))
@@ -225,6 +278,119 @@ class RGBColorExplorerMini:
         """Handle slider value changes."""
         self.update_color()
         self.update_combobox_selection()  # Set to "Custom Color" when manually adjusted
+    
+    def on_entry_change(self, color_channel):
+        """Handle text entry changes with validation for decimal and hex values."""
+        self._updating_from_entry = True  # Prevent circular updates
+        
+        try:
+            if color_channel == 'red':
+                entry_widget = self.red_entry
+                var = self.red_var
+            elif color_channel == 'green':
+                entry_widget = self.green_entry
+                var = self.green_var
+            elif color_channel == 'blue':
+                entry_widget = self.blue_entry
+                var = self.blue_var
+            else:
+                return
+            
+            value_str = entry_widget.get().strip()
+            
+            # Try to parse the value
+            value = self.parse_color_value(value_str)
+            
+            if value is not None:
+                # Valid value - update the variable and slider
+                var.set(value)
+                self.update_color()
+                self.update_combobox_selection()  # Set to "Custom Color" when manually entered
+                # Reset any error styling
+                entry_widget.configure(style='TEntry')
+            else:
+                # Invalid value - show error styling
+                self.show_entry_error(entry_widget)
+                
+        except Exception as e:
+            print(f"Error processing entry change: {e}")
+            self.show_entry_error(entry_widget)
+        finally:
+            self._updating_from_entry = False
+            
+    def parse_color_value(self, value_str):
+        """Parse color value from string - supports decimal (0-255) and hex (00-FF, 0x00-0xFF)."""
+        if not value_str:
+            return None
+            
+        value_str = value_str.strip().lower()
+        
+        try:
+            # Try decimal format first
+            if value_str.isdigit():
+                value = int(value_str)
+                if 0 <= value <= 255:
+                    return value
+                return None
+            
+            # Try hexadecimal formats
+            if value_str.startswith('0x'):
+                # Format: 0x00 to 0xFF
+                value = int(value_str, 16)
+                if 0 <= value <= 255:
+                    return value
+                return None
+            elif len(value_str) <= 2 and all(c in '0123456789abcdef' for c in value_str):
+                # Format: 00 to FF (assume hex if all hex digits)
+                value = int(value_str, 16)
+                if 0 <= value <= 255:
+                    return value
+                return None
+                
+        except ValueError:
+            pass
+            
+        return None
+        
+    def show_entry_error(self, entry_widget):
+        """Show visual feedback for invalid entry."""
+        # Create a simple error indication by temporarily changing the background
+        try:
+            entry_widget.configure(background='#ffcccc')  # Light red background
+            # Reset after 1.5 seconds
+            self.root.after(1500, lambda: entry_widget.configure(background='white'))
+        except:
+            # Fallback if styling doesn't work
+            pass
+    
+    def on_combobox_keypress(self, event):
+        """Handle any keypress in combobox."""
+        # Allow a small delay for the combobox to update its selection
+        self.root.after(10, self.apply_current_selection)
+        
+    def on_combobox_navigate(self, event):
+        """Handle Up/Down arrow navigation in combobox."""
+        # Allow the default navigation to happen first
+        self.root.after(10, self.apply_current_selection)
+        
+    def apply_current_selection(self):
+        """Apply the currently highlighted color in the combobox."""
+        try:
+            # Get the current value from the combobox
+            current_value = self.color_combobox.get()
+            if current_value:
+                # Extract color name and apply it
+                color_name = self.extract_color_name(current_value)
+                if color_name in self.COMMON_COLORS and self.COMMON_COLORS[color_name] is not None:
+                    rgb_values = self.COMMON_COLORS[color_name]
+                    r, g, b = rgb_values
+                    self.red_var.set(r)
+                    self.green_var.set(g)
+                    self.blue_var.set(b)
+                    self.update_color()
+        except Exception as e:
+            # Silently handle any errors during navigation
+            pass
     
     def on_animation_change(self):
         """Handle animation checkbox changes."""
@@ -272,7 +438,7 @@ class RGBColorExplorerMini:
             return
         
         speed = int(self.speed_scale.get())
-        step_size = speed  # 1-10 based on speed scale
+        step_size = 1  # Always 1 for smooth animation in mini version
         
         # Animate Red channel if enabled
         if self.animate_red.get():
@@ -322,8 +488,9 @@ class RGBColorExplorerMini:
         # Update the display
         self.update_color()
         
-        # Calculate delay based on speed
-        delay = max(20, 200 - (speed * 15))  # 20ms to 185ms delay
+        # Calculate delay for half speed compared to original
+        base_delay = max(20, 200 - (speed * 15))  # Original timing
+        delay = base_delay * 2  # Double the delay for half speed
         
         # Schedule next animation frame
         self.animation_job = self.root.after(delay, self.animate_color)
@@ -353,6 +520,15 @@ class RGBColorExplorerMini:
         
         # Update color value label (shorter format for compact display)
         self.color_value_label.config(text=f"RGB({r},{g},{b}) | {hex_color.upper()}")
+        
+        # Update entry boxes to stay synchronized (only if not currently being edited)
+        if not hasattr(self, '_updating_from_entry'):
+            self.red_entry.delete(0, tk.END)
+            self.red_entry.insert(0, str(r))
+            self.green_entry.delete(0, tk.END)
+            self.green_entry.insert(0, str(g))
+            self.blue_entry.delete(0, tk.END)
+            self.blue_entry.insert(0, str(b))
         
     def on_color_selected(self, event=None):
         """Handle color selection from dropdown."""

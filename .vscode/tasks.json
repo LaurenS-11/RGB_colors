@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run RGB Color Explorer",
+			"type": "shell",
+			"command": "/home/rayla/py_projects/RGB_colors/.venv/bin/python",
+			"args": [
+				"rgb_color_explorer.py"
+			],
+			"group": "build",
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

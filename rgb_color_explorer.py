@@ -14,14 +14,59 @@ import sys
 class RGBColorExplorer:
     """Main application class for the RGB Color Explorer."""
     
+    # Common color names and their RGB values
+    COMMON_COLORS = {
+        "Custom Color": None,  # Default selection - no auto-change
+        "Black": (0, 0, 0),
+        "White": (255, 255, 255),
+        "Red": (255, 0, 0),
+        "Green": (0, 128, 0),
+        "Blue": (0, 0, 255),
+        "Yellow": (255, 255, 0),
+        "Cyan": (0, 255, 255),
+        "Magenta": (255, 0, 255),
+        "Silver": (192, 192, 192),
+        "Gray": (128, 128, 128),
+        "Maroon": (128, 0, 0),
+        "Olive": (128, 128, 0),
+        "Lime": (0, 255, 0),
+        "Aqua": (0, 255, 255),
+        "Teal": (0, 128, 128),
+        "Navy": (0, 0, 128),
+        "Fuchsia": (255, 0, 255),
+        "Purple": (128, 0, 128),
+        "Orange": (255, 165, 0),
+        "Pink": (255, 192, 203),
+        "Brown": (165, 42, 42),
+        "Coral": (255, 127, 80),
+        "Crimson": (220, 20, 60),
+        "Gold": (255, 215, 0),
+        "Indigo": (75, 0, 130),
+        "Ivory": (255, 255, 240),
+        "Khaki": (240, 230, 140),
+        "Lavender": (230, 230, 250),
+        "Lemon": (255, 250, 205),
+        "Mint": (245, 255, 250),
+        "Peach": (255, 218, 185),
+        "Plum": (221, 160, 221),
+        "Salmon": (250, 128, 114),
+        "Tan": (210, 180, 140),
+        "Turquoise": (64, 224, 208),
+        "Violet": (238, 130, 238),
+        "Wheat": (245, 222, 179),
+    }
+    
     def __init__(self, root):
         """Initialize the RGB Color Explorer application."""
         self.root = root
         self.root.title("RGB Color Explorer")
         
-        # Set optimal window size to fit all components without scrolling
-        self.root.geometry("800x650")
-        self.root.minsize(700, 600)  # Minimum size to maintain usability
+        # Configure window close behavior for proper cleanup
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        
+        # Set optimal window size to fit on smaller screens (1366x768)
+        self.root.geometry("750x650")  # Optimized for 1366x768 screens
+        self.root.minsize(650, 600)  # Minimum size to maintain usability
         self.root.resizable(True, True)
         
         # Center the window on screen
@@ -39,14 +84,42 @@ class RGBColorExplorer:
         self.green_var = tk.IntVar(value=128)
         self.blue_var = tk.IntVar(value=128)
         
+        # Animation control variables
+        self.animate_red = tk.BooleanVar(value=False)
+        self.animate_green = tk.BooleanVar(value=False)
+        self.animate_blue = tk.BooleanVar(value=False)
+        self.animation_active = False
+        self.animation_direction = {"red": 1, "green": 1, "blue": 1}  # 1 for increasing, -1 for decreasing
+        self.animation_speed = 2  # pixels per update (adjustable)
+        self.animation_timer = None
+        
         # Set up the GUI
         self.create_widgets()
         self.update_color()
         
+    def get_dropdown_values(self):
+        """Generate dropdown values with color names and hex codes."""
+        dropdown_values = []
+        for color_name, rgb_values in self.COMMON_COLORS.items():
+            if rgb_values is None:
+                # Custom Color entry
+                dropdown_values.append(color_name)
+            else:
+                r, g, b = rgb_values
+                hex_code = f"#{r:02X}{g:02X}{b:02X}"
+                dropdown_values.append(f"{color_name} ({hex_code})")
+        return dropdown_values
+        
+    def extract_color_name(self, dropdown_text):
+        """Extract the color name from dropdown text that includes hex code."""
+        if '(' in dropdown_text:
+            return dropdown_text.split(' (')[0]
+        return dropdown_text
+        
     def create_widgets(self):
         """Create and arrange all GUI widgets."""
-        # Main frame
-        main_frame = ttk.Frame(self.root, padding="20")
+        # Main frame with reduced padding for compact layout
+        main_frame = ttk.Frame(self.root, padding="15")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Configure grid weights for responsive design
@@ -56,24 +129,44 @@ class RGBColorExplorer:
         
         # Title
         title_label = ttk.Label(main_frame, text="RGB Color Explorer", 
-                               font=('Arial', 18, 'bold'))
-        title_label.grid(row=0, column=0, columnspan=2, pady=(0, 20))
+                               font=('Arial', 16, 'bold'))
+        title_label.grid(row=0, column=0, columnspan=2, pady=(0, 15))
         
-        # Color display square
-        self.color_frame = tk.Frame(main_frame, width=300, height=200, 
+        # Color selection dropdown
+        color_selection_frame = ttk.Frame(main_frame)
+        color_selection_frame.grid(row=1, column=0, columnspan=2, pady=(0, 15))
+        
+        ttk.Label(color_selection_frame, text="Common Colors:", 
+                 font=('Arial', 12, 'bold')).grid(row=0, column=0, padx=(0, 10))
+        
+        self.color_combobox = ttk.Combobox(color_selection_frame, 
+                                          values=self.get_dropdown_values(),
+                                          state="readonly", width=25)
+        self.color_combobox.grid(row=0, column=1, padx=(0, 10))
+        self.color_combobox.set("Custom Color")  # Default selection
+        self.color_combobox.bind('<<ComboboxSelected>>', self.on_color_selected)
+        
+        # Add keyboard navigation for real-time color changes
+        self.color_combobox.bind('<KeyPress>', self.on_combobox_keypress)
+        self.color_combobox.bind('<Up>', self.on_combobox_navigate)
+        self.color_combobox.bind('<Down>', self.on_combobox_navigate)
+        self.color_combobox.bind('<Return>', self.on_color_selected)
+        
+        # Color display area (maximum width for best color viewing)
+        self.color_frame = tk.Frame(main_frame, width=500, height=120, 
                                    relief='solid', borderwidth=2)
-        self.color_frame.grid(row=1, column=0, columnspan=2, pady=(0, 30), 
-                             padx=20, sticky='ew')
+        self.color_frame.grid(row=2, column=0, columnspan=2, pady=(0, 15), 
+                             padx=(5, 5))
         self.color_frame.grid_propagate(False)  # Maintain fixed size
         
         # Color value display
         self.color_value_label = ttk.Label(main_frame, 
-                                          font=('Courier', 12, 'bold'))
-        self.color_value_label.grid(row=2, column=0, columnspan=2, pady=(0, 20))
+                                          font=('Courier', 11, 'bold'))
+        self.color_value_label.grid(row=3, column=0, columnspan=2, pady=(0, 15))
         
         # Red slider
-        red_frame = ttk.LabelFrame(main_frame, text="Red", padding="10")
-        red_frame.grid(row=3, column=0, columnspan=2, sticky='ew', pady=5)
+        red_frame = ttk.LabelFrame(main_frame, text="Red", padding="8")
+        red_frame.grid(row=4, column=0, columnspan=2, sticky='ew', pady=3)
         red_frame.columnconfigure(1, weight=1)
         
         ttk.Label(red_frame, text="0").grid(row=0, column=0, padx=(0, 5))
@@ -95,8 +188,8 @@ class RGBColorExplorer:
         self.red_entry.bind('<FocusOut>', lambda e: self.on_entry_change('red'))
         
         # Green slider
-        green_frame = ttk.LabelFrame(main_frame, text="Green", padding="10")
-        green_frame.grid(row=4, column=0, columnspan=2, sticky='ew', pady=5)
+        green_frame = ttk.LabelFrame(main_frame, text="Green", padding="8")
+        green_frame.grid(row=5, column=0, columnspan=2, sticky='ew', pady=3)
         green_frame.columnconfigure(1, weight=1)
         
         ttk.Label(green_frame, text="0").grid(row=0, column=0, padx=(0, 5))
@@ -118,8 +211,8 @@ class RGBColorExplorer:
         self.green_entry.bind('<FocusOut>', lambda e: self.on_entry_change('green'))
         
         # Blue slider
-        blue_frame = ttk.LabelFrame(main_frame, text="Blue", padding="10")
-        blue_frame.grid(row=5, column=0, columnspan=2, sticky='ew', pady=5)
+        blue_frame = ttk.LabelFrame(main_frame, text="Blue", padding="8")
+        blue_frame.grid(row=6, column=0, columnspan=2, sticky='ew', pady=3)
         blue_frame.columnconfigure(1, weight=1)
         
         ttk.Label(blue_frame, text="0").grid(row=0, column=0, padx=(0, 5))
@@ -142,7 +235,7 @@ class RGBColorExplorer:
         
         # Control buttons
         button_frame = ttk.Frame(main_frame)
-        button_frame.grid(row=6, column=0, columnspan=2, pady=20)
+        button_frame.grid(row=7, column=0, columnspan=2, pady=15)
         
         ttk.Button(button_frame, text="Reset to Gray", 
                   command=self.reset_to_gray).grid(row=0, column=0, padx=5)
@@ -151,9 +244,173 @@ class RGBColorExplorer:
         ttk.Button(button_frame, text="Copy RGB", 
                   command=self.copy_rgb).grid(row=0, column=2, padx=5)
         
+        # Animation Controls
+        animation_frame = ttk.LabelFrame(main_frame, text="Color Animation", padding="8")
+        animation_frame.grid(row=8, column=0, columnspan=2, sticky='ew', pady=(15, 0))
+        
+        # Animation mode selection
+        ttk.Label(animation_frame, text="Auto-sweep channels:", 
+                 font=('Arial', 10, 'bold')).grid(row=0, column=0, padx=(0, 15))
+        
+        # Checkboxes for independent channel animation
+        ttk.Checkbutton(animation_frame, text="Red", variable=self.animate_red, 
+                       command=self.on_animation_change).grid(row=0, column=1, padx=5)
+        ttk.Checkbutton(animation_frame, text="Green", variable=self.animate_green, 
+                       command=self.on_animation_change).grid(row=0, column=2, padx=5)
+        ttk.Checkbutton(animation_frame, text="Blue", variable=self.animate_blue, 
+                       command=self.on_animation_change).grid(row=0, column=3, padx=5)
+        
+        # Control buttons for convenience
+        ttk.Button(animation_frame, text="Start All", 
+                  command=self.start_all_animation).grid(row=0, column=4, padx=(15, 5))
+        ttk.Button(animation_frame, text="Stop All", 
+                  command=self.stop_all_animation).grid(row=0, column=5, padx=5)
+        
+        # Animation speed control
+        speed_frame = ttk.Frame(animation_frame)
+        speed_frame.grid(row=1, column=0, columnspan=6, pady=(8, 0), sticky='ew')
+        
+        ttk.Label(speed_frame, text="Speed:").grid(row=0, column=0, padx=(0, 5))
+        self.speed_scale = ttk.Scale(speed_frame, from_=1, to=10, orient='horizontal', 
+                                    length=150, command=self.on_speed_change)
+        self.speed_scale.set(3)  # Default speed
+        self.speed_scale.grid(row=0, column=1, padx=5)
+        ttk.Label(speed_frame, text="Slow").grid(row=0, column=2, padx=(5, 0))
+        ttk.Label(speed_frame, text="Fast").grid(row=0, column=3, padx=(15, 0))
+        
     def on_scale_change(self, event=None):
         """Handle slider value changes."""
+        # Stop animation for manually adjusted channels
+        if self.animation_active and not getattr(self, '_programmatic_change', False):
+            # Determine which slider was moved and stop its animation
+            # For now, we'll keep all animations running unless explicitly stopped
+            pass
         self.update_color()
+        self.update_combobox_selection()  # Set to "Custom Color" when manually adjusted
+    
+    def on_animation_change(self):
+        """Handle animation checkbox changes."""
+        # Check if any channels are set to animate
+        any_active = self.animate_red.get() or self.animate_green.get() or self.animate_blue.get()
+        
+        if any_active and not self.animation_active:
+            self.start_animation()
+        elif not any_active and self.animation_active:
+            self.stop_animation()
+    
+    def start_all_animation(self):
+        """Start all channel animations."""
+        self.animate_red.set(True)
+        self.animate_green.set(True)
+        self.animate_blue.set(True)
+        if not self.animation_active:
+            self.start_animation()
+    
+    def stop_all_animation(self):
+        """Stop all channel animations."""
+        self.animate_red.set(False)
+        self.animate_green.set(False)
+        self.animate_blue.set(False)
+        self.stop_animation()
+    
+    def on_speed_change(self, value):
+        """Handle animation speed changes."""
+        # Speed is handled by the animation timer
+        pass
+    
+    def start_animation(self):
+        """Start the color animation for enabled channels."""
+        self.animation_active = True
+        # Start the animation loop
+        self.animate_color()
+    
+    def stop_animation(self):
+        """Stop the color animation."""
+        self.animation_active = False
+        if hasattr(self, 'animation_job'):
+            self.root.after_cancel(self.animation_job)
+    
+    def animate_color(self):
+        """Main animation loop that updates color values for active channels."""
+        if not self.animation_active:
+            return
+        
+        speed = int(self.speed_scale.get())
+        step_size = speed  # 1-10 based on speed scale
+        
+        # Animate Red channel if enabled
+        if self.animate_red.get():
+            current_val = int(self.red_var.get())
+            direction = self.animation_direction["red"]
+            next_val = current_val + (step_size * direction)
+            
+            # Check bounds and reverse direction if needed
+            if next_val >= 255:
+                next_val = 255
+                self.animation_direction["red"] = -1
+            elif next_val <= 0:
+                next_val = 0
+                self.animation_direction["red"] = 1
+            
+            # Update red channel
+            self._programmatic_change = True
+            self.red_var.set(next_val)
+            self._programmatic_change = False
+        
+        # Animate Green channel if enabled
+        if self.animate_green.get():
+            current_val = int(self.green_var.get())
+            direction = self.animation_direction["green"]
+            next_val = current_val + (step_size * direction)
+            
+            # Check bounds and reverse direction if needed
+            if next_val >= 255:
+                next_val = 255
+                self.animation_direction["green"] = -1
+            elif next_val <= 0:
+                next_val = 0
+                self.animation_direction["green"] = 1
+            
+            # Update green channel
+            self._programmatic_change = True
+            self.green_var.set(next_val)
+            self._programmatic_change = False
+        
+        # Animate Blue channel if enabled
+        if self.animate_blue.get():
+            current_val = int(self.blue_var.get())
+            direction = self.animation_direction["blue"]
+            next_val = current_val + (step_size * direction)
+            
+            # Check bounds and reverse direction if needed
+            if next_val >= 255:
+                next_val = 255
+                self.animation_direction["blue"] = -1
+            elif next_val <= 0:
+                next_val = 0
+                self.animation_direction["blue"] = 1
+            
+            # Update blue channel
+            self._programmatic_change = True
+            self.blue_var.set(next_val)
+            self._programmatic_change = False
+        
+        # Update the display
+        self.update_color()
+        
+        # Calculate delay based on speed (faster speed = shorter delay)
+        delay = max(20, 200 - (speed * 15))  # 20ms to 185ms delay
+        
+        # Schedule next animation frame
+        self.animation_job = self.root.after(delay, self.animate_color)
+    
+    def on_closing(self):
+        """Handle application closing with proper cleanup."""
+        # Stop any running animations
+        self.stop_animation()
+        
+        # Destroy the window
+        self.root.destroy()
         
     def update_color(self):
         """Update the color display and value labels."""
@@ -213,6 +470,7 @@ class RGBColorExplorer:
                 # Valid value - update the variable and slider
                 var.set(value)
                 self.update_color()
+                self.update_combobox_selection()  # Set to "Custom Color" when manually entered
                 # Reset any error styling
                 entry_widget.configure(style='TEntry')
             else:
@@ -270,6 +528,60 @@ class RGBColorExplorer:
         except:
             # Fallback if styling doesn't work
             pass
+            
+    def on_color_selected(self, event=None):
+        """Handle color selection from dropdown."""
+        selected_text = self.color_combobox.get()
+        selected_color = self.extract_color_name(selected_text)
+        
+        if selected_color == "Custom Color" or selected_color not in self.COMMON_COLORS:
+            # Don't change anything for custom color selection
+            return
+            
+        rgb_values = self.COMMON_COLORS[selected_color]
+        if rgb_values is not None:
+            r, g, b = rgb_values
+            # Update the sliders and all displays
+            self.red_var.set(r)
+            self.green_var.set(g)
+            self.blue_var.set(b)
+            self.update_color()
+            
+    def on_combobox_keypress(self, event):
+        """Handle any keypress in combobox."""
+        # Allow a small delay for the combobox to update its selection
+        self.root.after(10, self.apply_current_selection)
+        
+    def on_combobox_navigate(self, event):
+        """Handle Up/Down arrow navigation in combobox."""
+        # Allow the default navigation to happen first
+        self.root.after(10, self.apply_current_selection)
+        
+    def apply_current_selection(self):
+        """Apply the currently highlighted color in the combobox."""
+        try:
+            # Get the current value from the combobox
+            current_value = self.color_combobox.get()
+            if current_value:
+                # Extract color name and apply it
+                color_name = self.extract_color_name(current_value)
+                if color_name in self.COMMON_COLORS and self.COMMON_COLORS[color_name] is not None:
+                    rgb_values = self.COMMON_COLORS[color_name]
+                    r, g, b = rgb_values
+                    self.red_var.set(r)
+                    self.green_var.set(g)
+                    self.blue_var.set(b)
+                    self.update_color()
+        except Exception as e:
+            # Silently handle any errors during navigation
+            pass
+            
+    def update_combobox_selection(self):
+        """Update combobox to show 'Custom Color' when user manually adjusts sliders."""
+        # Only change if not already set to Custom Color to avoid unnecessary updates
+        current_selection = self.extract_color_name(self.color_combobox.get())
+        if current_selection != "Custom Color":
+            self.color_combobox.set("Custom Color")
         
     def reset_to_gray(self):
         """Reset all sliders to middle gray (128, 128, 128)."""
@@ -313,7 +625,7 @@ class RGBColorExplorer:
         
         # Get window dimensions
         window_width = 800
-        window_height = 650
+        window_height = 700
         
         # Calculate center position
         x = (screen_width - window_width) // 2

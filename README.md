@@ -36,11 +36,14 @@ Both versions feature ultra-wide color displays for maximum visual impact and sm
   - **Full Version**: Normal animation speed
   - **Mini Version**: Half-speed animations for smoother viewing in compact window
 
-### 🎨 Enhanced Common Colors Dropdown (35+ Colors)
+### 🎨 Enhanced Common Colors Dropdown (39 Unique Colors)
 - **Visual Format**: Each color shows both name and hex code (e.g., "Red (#FF0000)")
 - **Keyboard Navigation**: Use ↑/↓ arrow keys to browse colors with instant live preview
 - **Real-time Updates**: Colors apply immediately as you navigate (no clicking required)
-- **Complete Color Set**: Black, White, Red, Green, Blue, Yellow, Orange, Pink, Brown, Coral, Crimson, Gold, Indigo, and many more
+- **Alphabetized Organization**: All colors perfectly sorted from Azure to Yellow for easy navigation
+- **Standard Definitions**: All colors use official CSS/web standard color values
+- **No Duplicates**: Cleaned list with unique colors only (removed duplicate Aqua/Cyan and Fuchsia/Magenta)
+- **Complete Color Set**: Azure, Black, Blue, Brown, Chartreuse, Coral, Crimson, Cyan, Gold, Gray, Green, Indigo, Ivory, Khaki, Lavender, Lemon, Lime, Magenta, Maroon, Mint, Navy, Olive, Orange, Peach, Pink, Plum, Purple, Red, Rose, Salmon, Silver, Spring Green, Tan, Teal, Turquoise, Violet, Wheat, White, Yellow
 
 ### 🎛️ Utility Controls
 - **Reset to Gray**: Sets all RGB values to 128 (middle gray)
@@ -129,10 +132,17 @@ python rgb_color_explorer_mini.py
 - **Color Theory**: Visual demonstration of RGB additive color mixing
 - **Digital Color**: Understanding 8-bit color channels and hex representation
 - **Animation Learning**: See how individual RGB channels affect overall appearance
-- **Web Development**: Learn CSS color formats and values
-- **Design Skills**: Explore color harmonies and combinations
+- **Web Development**: Learn CSS color formats and values with standard definitions
+- **Design Skills**: Explore color harmonies and combinations using professionally organized color palette
+- **Color Standards**: Learn official CSS color names and their exact values in alphabetical order
 
 ## 🔧 Technical Implementation
+
+### Color Management System
+- **Standard Definitions**: All 39 colors use official CSS/web standard values
+- **Alphabetical Organization**: Perfect A-Z sorting for intuitive navigation
+- **Duplicate Elimination**: Removed redundant Aqua/Cyan and Fuchsia/Magenta pairs
+- **Quality Assurance**: Each color represents a unique RGB value with proper naming
 
 ### Animation System
 - **Step Size**: Always 1 pixel for smooth movement

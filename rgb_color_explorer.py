@@ -336,7 +336,7 @@ class RGBColorExplorer:
             return
         
         speed = int(self.speed_scale.get())
-        step_size = speed  # 1-10 based on speed scale
+        step_size = 1  # Always 1 for smooth pixel-by-pixel animation
         
         # Animate Red channel if enabled
         if self.animate_red.get():

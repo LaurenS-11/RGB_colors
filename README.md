@@ -6,6 +6,10 @@ A comprehensive Python GUI application built with tkinter that provides an inter
 
 The RGB Color Explorer transforms the abstract concept of RGB color mixing into a tangible, visual experience. By providing real-time feedback as you adjust color values, it bridges the gap between numerical color values and their visual representation, making it an invaluable tool for both learning and professional work.
 
+**Available in Two Versions:**
+- **Full Version** (`rgb_color_explorer.py`): Complete feature set in 750x650 window with 680px wide color display
+- **Mini Version** (`rgb_color_explorer_mini.py`): Compact version in 465x442 window with 420px wide color display
+
 ### Target Audience
 - **Web Developers**: Find exact color values for CSS and web design
 - **Graphic Designers**: Explore color combinations and get precise color codes
@@ -83,13 +87,15 @@ The RGB Color Explorer transforms the abstract concept of RGB color mixing into 
 ### 🖼️ Color Display System
 
 #### Maximum-Width Color Preview Rectangle
-- **Dimensions**: 500x120 pixels (optimized wide rectangle for enhanced viewing)
-- **Design**: Cinematic color bar spanning nearly the full window width
+- **Full Version Dimensions**: 680x120 pixels (ultra-wide rectangle spanning nearly the entire window)
+- **Mini Version Dimensions**: 420x120 pixels (optimized for compact 465x442 window)
+- **Design**: Cinematic color bar maximizing available window width for enhanced viewing
 - **Update Method**: Instantaneous refresh on any slider movement or animation frame
 - **Border**: 2-pixel solid border for clear definition
 - **Color Accuracy**: True RGB representation using hexadecimal color codes
 - **Purpose**: Provides immediate visual feedback of color mixing results with maximum visual impact
 - **Animation Display**: Optimal format for showcasing smooth color transitions and multi-channel effects
+- **Professional Appearance**: Resembles color bars used in video editing and graphics software
 
 #### Dual Color Value Display
 - **RGB Format**: `RGB(red_value, green_value, blue_value)`
@@ -280,6 +286,8 @@ cd RGB_colors
 ### Starting the Application
 
 #### Command Line Execution
+
+**Full Version (750x650 window):**
 ```bash
 # Navigate to project directory
 cd /path/to/RGB_colors
@@ -291,31 +299,62 @@ python rgb_color_explorer.py
 python3 rgb_color_explorer.py
 ```
 
+**Mini Version (465x442 window):**
+```bash
+# Navigate to project directory
+cd /path/to/RGB_colors
+
+# Run the compact version
+python rgb_color_explorer_mini.py
+
+# Or with Python 3 specifically
+python3 rgb_color_explorer_mini.py
+```
+
 #### Making Executable (Linux/macOS)
 ```bash
+# Full version
 chmod +x rgb_color_explorer.py
 ./rgb_color_explorer.py
+
+# Mini version
+chmod +x rgb_color_explorer_mini.py
+./rgb_color_explorer_mini.py
 ```
 
 #### VS Code Integration
 - Use the configured task: "Run RGB Color Explorer"
 - Or use the integrated terminal within VS Code
 
-#### Window Size Customization
-The application starts with an optimal window size (750x650 pixels) that fits perfectly on smaller screens including 1366x768 laptops. The window is automatically centered on your screen.
+#### Version Selection Guide
 
-**To start maximized instead:**
-1. Open `rgb_color_explorer.py` in your editor
-2. Find the line: `# self.root.state('zoomed')  # Linux/Windows maximized`
-3. Uncomment it by removing the `# ` at the beginning
-4. Save and run the application
+**Choose Full Version (`rgb_color_explorer.py`) when:**
+- You want the complete feature set with maximum color display area
+- Working on a larger screen (1366x768 or larger)
+- Need all 35+ color presets with advanced text entry features
+- Doing detailed color work or educational demonstrations
+- Want the largest possible color viewing area (680px wide)
 
-**Current default behavior:**
+**Choose Mini Version (`rgb_color_explorer_mini.py`) when:**
+- Need a compact tool alongside other applications
+- Working with limited screen space
+- Want a quick color picker without screen real estate concerns
+- Using on smaller screens or mobile devices
+- Prefer a fixed-size utility window
+
+#### Window Size Information
+
+**Full Version:**
 - Window size: 750x650 pixels (optimized for 1366x768 screens and larger)
 - Minimum size: 650x600 pixels (maintains usability when resized)
-- Position: Automatically centered on screen
+- Color display: 680x120 pixels (ultra-wide for maximum impact)
 - Resizable: Yes, in both width and height
-- Color Display: Maximum width (500px) rectangle for optimal color viewing
+
+**Mini Version:**
+- Window size: 465x442 pixels (compact fixed size)
+- Color display: 420x120 pixels (wide rectangle optimized for small window)
+- Resizable: No (fixed dimensions for consistent experience)
+- Perfect for: Secondary displays, quick color selection, embedded workflows
 
 ### Step-by-Step User Guide
 

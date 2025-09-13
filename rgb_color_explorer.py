@@ -152,8 +152,8 @@ class RGBColorExplorer:
         self.color_combobox.bind('<Down>', self.on_combobox_navigate)
         self.color_combobox.bind('<Return>', self.on_color_selected)
         
-        # Color display area (maximum width for best color viewing)
-        self.color_frame = tk.Frame(main_frame, width=500, height=120, 
+        # Color display area (maximum width spanning nearly the full window)
+        self.color_frame = tk.Frame(main_frame, width=680, height=120, 
                                    relief='solid', borderwidth=2)
         self.color_frame.grid(row=2, column=0, columnspan=2, pady=(0, 15), 
                              padx=(5, 5))
